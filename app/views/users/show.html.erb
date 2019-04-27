@@ -1,27 +1,28 @@
 <% provide(:title, '勤怠表示') %>
 <div>
   <table class = "table-bordered table-condensed">
-  <tr>
-    <td>
-      <%= link_to "←", user_path(params: {id: @user.id, first_day: @first_day.prev_month }),
+    <tr>
+      <td>
+        <%= link_to "←", user_path(params: {id: @user.id, first_day: @first_day.prev_month }),
                          class: "btn btn-xs btn-primary" %>
-      &emsp;<%= @first_day.to_s(:year_month) %>　時間管理表&emsp;
-      <%= link_to "→", user_path(params: {id: @user.id, first_day: @first_day.next_month }),
+        &emsp;<%= @first_day.to_s(:year_month) %>　時間管理表&emsp;
+        <%= link_to "→", user_path(params: {id: @user.id, first_day: @first_day.next_month }),
                          class: "btn btn-xs btn-primary" %>
-    </td>
-    <td>指定勤務時間　<%= format_basic_time(@user.work_time) %></td>
-    <td>基本時間　<%= format_basic_time(@user.basic_time) %></td>
-    <td>初日　<%= @first_day.to_s(:date) %></td>
-  </tr>
-  <tr>
-    <td>所属：<%= @user.department.present? ? @user.department : "未設定" %></td>
-    <td>氏名：<%= @user.name %></td>
-    <td>出勤日数：<%= @worked_sum %>日</td>
-    <td>締日　<%= @last_day.to_s(:date) %></td>
-  </tr>
-</table>
-  
-  
+      </td>
+      <td>指定勤務時間　<%= format_basic_time(@user.work_time) %></td>
+      <td>基本時間　<%= format_basic_time(@user.basic_time) %></td>
+      <td>初日　<%= @first_day.to_s(:date) %></td>
+    </tr>
+    <tr>
+      <td>所属：<%= @user.department.present? ? @user.department : "未設定" %></td>
+      <td>氏名：<%= @user.name %></td>
+      <td>出勤日数：<%= @worked_sum %>日</td>
+      <td>締日　<%= @last_day.to_s(:date) %></td>
+    </tr>
+  </table>
+
+  <%= link_to "勤怠を編集", edit_attendances_path(@user, @first_day), class: "btn btn-primary" %>
+
   <table class = "table-bordered table-striped table-condensed">
     <thead>
       <tr> <!--rowspan:縦結合、colspan：横結合-->
@@ -41,40 +42,36 @@
         <th></th>
       </tr>
     </thead>
-  <!--!注意！この位置に</table>タグがあるはずです、削除してください-->  
-<!--!注意！この位置に</div>タグがあるはずです、これも削除してください-->
-
-<!--↓↓↓ここから先が今回記述するコード↓↓↓-->
     <tbody>
-  <% @dates.each do |day| %>
-    <tr>
-      <td><%= day.worked_on.to_s(:date) %></td>
-      <td><%= %w{日 月 火 水 木 金 土}[day.worked_on.wday] %></td>
-      <td><%= day.started_at.to_s(:hour) if day.started_at.present? %></td>
-      <td><%= day.started_at.to_s(:min) if day.started_at.present? %></td>
-      <td>
-        <% if day.worked_on == Date.today && day.started_at.nil? %>
-          <%= button_to "出社", user_attendances_path(@user), class: "btn btn-xs btn-primary" %>
-        <% end %>
-      </td>
-      <td><%= day.finished_at.to_s(:hour) if day.finished_at.present? %></td>
-      <td><%= day.finished_at.to_s(:min) if day.finished_at.present? %></td>
-      <td>
-        <% if day.worked_on == Date.today && day.started_at.present? && day.finished_at.nil? %>
-          <%= button_to "退社", user_attendances_path(@user), class: "btn btn-xs btn-primary" %>
-        <% end %>
-      </td>
-      <td>
-        <% if day.started_at.present? && day.finished_at.present? %>
-          <%= working_times(day.started_at, day.finished_at) %>
-          <% seconds = (day.finished_at - day.started_at).to_i %>
-          <% @total_seconds = @total_seconds.to_i + seconds %>
-        <% end %>
-      </td>
-      <td></td>
-    </tr>
-  <% end %>
-</tbody>
+      <% @dates.each do |day| %>
+        <tr>
+          <td><%= day.worked_on.to_s(:date) %></td>
+          <td><%= %w{日 月 火 水 木 金 土}[day.worked_on.wday] %></td>
+          <td><%= day.started_at.to_s(:hour) if day.started_at.present? %></td>
+          <td><%= day.started_at.to_s(:min) if day.started_at.present? %></td>
+          <td>
+            <% if day.worked_on == Date.today && day.started_at.nil? %>
+              <%= button_to "出社", user_attendances_path(@user), class: "btn btn-xs btn-primary" %>
+            <% end %>
+          </td>
+          <td><%= day.finished_at.to_s(:hour) if day.finished_at.present? %></td>
+          <td><%= day.finished_at.to_s(:min) if day.finished_at.present? %></td>
+          <td>
+            <% if day.worked_on == Date.today && day.started_at.present? && day.finished_at.nil? %>
+              <%= button_to "退社", user_attendances_path(@user), class: "btn btn-xs btn-primary" %>
+            <% end %>
+          </td>
+          <td>
+            <% if day.started_at.present? && day.finished_at.present? %>
+              <%= working_times(day.started_at, day.finished_at) %>
+              <% seconds = (day.finished_at - day.started_at).to_i %>
+              <% @total_seconds = @total_seconds.to_i + seconds %>
+            <% end %>
+          </td>
+          <td><%= day.note %></td>
+        </tr>
+      <% end %>
+    </tbody>
     <tfoot>
       <tr>
         <td colspan = "2"><%= format_basic_time(@user.basic_time).to_f * @worked_sum %></td>
