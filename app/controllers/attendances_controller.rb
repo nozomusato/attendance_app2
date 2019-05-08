@@ -1,8 +1,8 @@
 class AttendancesController < ApplicationController
     
 def create
-  @user = User.find(params[:user_id])
-  @attendance = @user.attendances.find_by(worked_on: Date.today)
+  @user = User.find(params[:user_id]) #createアクションに対応したURL/users/:user_id/attendancesの:user_idから、インスタンス変数@userを定義しています。
+  @attendance = @user.attendances.find_by(worked_on: Date.today) #出勤時間を保存する為のレコードをattendancesテーブルから探し、インスタンス変数@attendanceに代入。
   if @attendance.started_at.nil?
     @attendance.update_attributes(started_at: current_time)
     flash[:info] = 'おはようございます。'
@@ -35,7 +35,7 @@ def update
       flash[:danger] = "不正な時間入力がありました、再入力してください。"
       redirect_to edit_attendances_path(@user, params[:date])
     end
-  end
+end
   
   private
     def attendances_params

@@ -19,7 +19,7 @@ module AttendancesHelper
   
   def first_day(date)
   !date.nil? ? Date.parse(date) : Date.current.beginning_of_month
-end
+  end
 
 def user_attendances_month_date
   @user.attendances.where('worked_on >= ? and worked_on <= ?', @first_day, @last_day).order('worked_on')
@@ -39,5 +39,5 @@ def attendances_invalid?
       end
     end
     return attendances
-  end
+end
 end

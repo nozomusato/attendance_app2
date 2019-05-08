@@ -4,22 +4,22 @@ class UsersController < ApplicationController
   before_action :admin_user,     only: [:destroy, :edit_basic_info, :update_basic_info]
 
   def index
-    @users = User.paginate(page: params[:page])
+    @users = User.paginate(page: params[:page]).search(params[:search])
   end
 
  def show
     @user = User.find(params[:id])
     @first_day = first_day(params[:first_day])
-    @last_day = @first_day.end_of_month
-    (@first_day..@last_day).each do |day|
-      unless @user.attendances.any? {|attendance| attendance.worked_on == day}
-        record = @user.attendances.build(worked_on: day)
-        record.save
+    @last_day = @first_day.end_of_month # @first_dayにend_of_monthを記述することで、末日を取得できる。
+    (@first_day..@last_day).each do |day| #ブロック変数のdayオブジェクトは、Dateクラスから取得した日付データ。
+      unless @user.attendances.any? {|attendance| attendance.worked_on == day} #@userに紐付いた、当月の初日から末日までのattendancesテーブルのレコードがあるか確認。
+        record = @user.attendances.build(worked_on: day) #無い場合該当する日付をworked_onに代入。
+        record.save #代入後保存
       end
     end
     @dates = user_attendances_month_date
     @worked_sum = @dates.where.not(started_at: nil).count
-  end
+ end
 
   def new
     @user = User.new
