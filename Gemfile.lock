@@ -40,7 +40,7 @@ GEM
       tzinfo (~> 1.1)
     ansi (1.5.0)
     arel (8.0.0)
-    autoprefixer-rails (9.5.1)
+    autoprefixer-rails (9.5.1.1)
       execjs
     bcrypt (3.1.12)
     bindex (0.7.0)
@@ -160,6 +160,7 @@ GEM
     rb-fsevent (0.10.3)
     rb-inotify (0.10.0)
       ffi (~> 1.0)
+    rounding (1.0.1)
     ruby-progressbar (1.10.0)
     ruby_dep (1.5.0)
     sass (3.7.4)
@@ -229,6 +230,7 @@ DEPENDENCIES
   rails (= 5.1.6)
   rails-controller-testing (= 1.0.2)
   rails-i18n
+  rounding
   sass-rails (= 5.0.6)
   spring (= 2.0.2)
   spring-watcher-listen (= 2.0.1)

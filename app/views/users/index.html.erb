@@ -1,5 +1,11 @@
 <% provide(:title, '一覧') %>
-<h1>ユーザ一覧</h1>
+
+<!--検索をしたら --!>
+<% if params[:search].present?%> <!-- params[:カラム名].メソッド? --!>
+ <h1>検索結果</h1>
+<% else %>
+ <h1>ユーザ一覧</h1>
+<% end %>
 
 <%= render 'users/search' %>
 
