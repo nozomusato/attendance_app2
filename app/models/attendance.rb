@@ -12,8 +12,10 @@ class Attendance < ApplicationRecord
    
   validate :finished_at_cannot_be_faster_than_started_at
   def finished_at_cannot_be_faster_than_started_at
-    if  started_at.present? && started_at > finished_at
-      errors.add(:finished_at, "退勤時間が出勤時間より早くなっています。")
+    if   started_at.present? && finished_at.present?
+    if   started_at > finished_at
+        errors.add(:finished_at, "退勤時間が出勤時間より早くなっています。")
+    end
     end
   end
 end
