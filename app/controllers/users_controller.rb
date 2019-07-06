@@ -63,15 +63,31 @@ class UsersController < ApplicationController
   @user = User.find(params[:id])
   end
 
-def update_basic_info
+  def update_basic_info
   @user = User.find(params[:id])
-  if @user.update_attributes(basic_info_params)
+   if @user.update_attributes(basic_info_params)
     flash[:success] = "基本情報を更新しました。"
     redirect_to @user   
-  else
+   else
     render 'edit_basic_info'
+   end
   end
-end
+  
+  def edit_overwork_request
+    @user = User.find(params[:id])
+    redirect_to(root_url) unless current_user?(@user)
+    @first_day = first_day(params[:first_day])
+    @last_day = @first_day.end_of_month
+    (@first_day..@last_day).each do |day|
+      unless @user.attendances.any? {|attendance| attendance.worked_on == day}
+        record = @user.attendances.build(worked_on: day)
+        record.save
+      end
+    end
+    @dates = user_attendances_month_date
+    @worked_sum = @dates.where.not(started_at: nil).count
+    @day=Date.parse(params[:day])
+  end
 
 private
   def user_params

@@ -8,6 +8,10 @@ Rails.application.routes.draw do
   patch 'update-basic-info',  to: 'users#update_basic_info'
   get 'users/:id/attendances/:date/edit', to: 'attendances#edit', as: :edit_attendances
   patch 'users/:id/attendances/:date/update', to: 'attendances#update', as: :update_attendances
+  
+  # 'edit_overwork_request'でusersコントローラのedit_overwork_requestアクションにルーティング
+  get '/edit_overwork_request/:id', to: 'users#edit_overwork_request', as: :edit_overwork_request
+  
   resources :users do
   resources :attendances, only: :create
   end

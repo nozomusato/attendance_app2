@@ -159,6 +159,12 @@ input, textarea, select, .uneditable-input {
   margin: auto;
 }
 
-/* 検索機能*/
+/* モーダルウインドウの位置調整 */
 
-/*検索ボタン*/
+.modal-dialog-center {
+  padding-top: 10%;
+}
+
+.modal-footer {
+  text-align:center;
+}
