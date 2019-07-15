@@ -1,4 +1,7 @@
 Rails.application.routes.draw do
+
+  get 'basepoints/new'
+
   root 'static_pages#home'
   get  '/signup',   to: 'users#new'
   get    '/login',  to: 'sessions#new'
@@ -9,10 +12,18 @@ Rails.application.routes.draw do
   get 'users/:id/attendances/:date/edit', to: 'attendances#edit', as: :edit_attendances
   patch 'users/:id/attendances/:date/update', to: 'attendances#update', as: :update_attendances
   
-  # 'edit_overwork_request'でusersコントローラのedit_overwork_requestアクションにルーティング
-  get '/edit_overwork_request/:id', to: 'users#edit_overwork_request', as: :edit_overwork_request
-  
   resources :users do
+     member do
+       get 'edit_overwork_request'
+     end
   resources :attendances, only: :create
   end
+  
+  resources :basepoints do
+    member do
+      get 'edit_basic_info'
+      patch 'update_basic_info'
+    end
+  end
+
 end

@@ -1,0 +1,25 @@
+<% provide(:title, '拠点一覧') %>
+<h1>拠点一覧</h1>
+
+<table class = "table-bordered  table-condensed table-striped basepoints">
+ 
+    <thead>
+      <tr> <!--rowspan:縦結合、colspan：横結合-->
+        <th></th>
+        <th></th>
+        <th>拠点名</th>
+        <th>拠点番号</th>
+        <th>勤怠種類</th>
+      </tr>
+      <% @basepoints.each do |basepoint| %>
+      <tr> <!--rowspan:縦結合、colspan：横結合-->
+        <th><%= link_to "拠点情報編集", edit_basic_info_basepoint_path(basepoint),class: "btn btn-primary" %></th>
+        <th><%= link_to "削除", basepoint, method: :delete, data: { confirm: "削除してよろしいですか？" },class: "btn btn-primary" %></th>
+        <th><%= basepoint.name %></th>
+        <th><%= basepoint.number %></th>
+        <th><%= basepoint.attendtype %></th>
+      </tr>
+    </thead>
+<% end %>
+</table>
+<%= link_to "拠点情報追加",new_basepoint_path, class: "btn btn-primary" %>

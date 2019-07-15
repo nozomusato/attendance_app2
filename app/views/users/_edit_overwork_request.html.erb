@@ -22,11 +22,18 @@
          
          <tr>
           <td><%= @day %></td>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td></td>
+          <td><%= @youbi%></td>
+          <td><input class="form-control"type="time" name="example1"></td>
+          <td><input type="checkbox" value="1" name="session[remember_me]" id="session_remember_me"></td>
+          <td><input class: "form-control"></td>
+          <td>
+          <form>
+            <select name="承認者">
+              <option value="">選択</option>
+              <option value="1">のじゃまる</option>
+            </select>
+          </form>
+          </td>
          </tr>
          
        </tbody>

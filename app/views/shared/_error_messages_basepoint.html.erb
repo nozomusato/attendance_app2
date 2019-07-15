@@ -1,0 +1,12 @@
+<% if @basepoint.errors.any? %>
+  <div id="error_explanation">
+    <div class="alert alert-danger">
+      エラーメッセージが <%=pluralize(@basepoint.errors.count,"") %>つあります。
+    </div>
+    <ul>
+    <% @basepoint.errors.full_messages.each do |msg| %>
+      <li><%= msg %></li>
+    <% end %>
+    </ul>
+  </div>
+<% end %>
