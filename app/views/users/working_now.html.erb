@@ -1,0 +1,18 @@
+<% provide(:title, '出勤社員一覧') %>
+<h1>出勤社員一覧</h1>
+
+<table class = "table-bordered  table-condensed table-striped users">
+ 
+    <thead>
+      <tr> <!--rowspan:縦結合、colspan：横結合-->
+        <th>社員番号</th>
+        <th>氏名</th>
+      </tr>
+      <% @users.each do |user| %>
+      <tr> <!--rowspan:縦結合、colspan：横結合-->
+        <th></th>
+        <th><%= user.name%></th>
+      </tr>
+    </thead>
+    <% end %>
+</table>

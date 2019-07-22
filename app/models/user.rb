@@ -10,13 +10,4 @@ class User < ApplicationRecord
   validates :password, presence: true, length: { minimum: 6 }, allow_nil: true
   validates :department, length: { in: 3..50 }, allow_blank: true
   
-  
-  def self.search(search) #ここでのself.はUser.を意味する
-    if search
-      where(['name LIKE ?', "%#{search}%"]) #検索とnameの部分一致を表示。User.は省略
-    else
-      all #全て表示。User.は省略
-    end
-  end
-  
 end

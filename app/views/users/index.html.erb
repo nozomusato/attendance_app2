@@ -1,13 +1,6 @@
-<% provide(:title, '一覧') %>
+<% provide(:title, 'ユーザー一覧') %>
 
-<!--検索をしたら --!>
-<% if params[:search].present?%> <!-- params[:カラム名].メソッド? --!>
- <h1>検索結果</h1>
-<% else %>
- <h1>ユーザ一覧</h1>
-<% end %>
-
-<%= render 'users/search' %>
+ <h1>ユーザー一覧</h1>
 
 <%= will_paginate @users, :previous_label => '&lt 前へ', :next_label => '次へ &gt' %>
 

@@ -4,7 +4,7 @@ class UsersController < ApplicationController
   before_action :admin_user,     only: [:destroy, :edit_basic_info, :update_basic_info,:index]
 
   def index
-    @users = User.paginate(page: params[:page]).search(params[:search])
+    @users = User.paginate(page: params[:page])
   end
 
  def show
@@ -76,6 +76,23 @@ class UsersController < ApplicationController
   def edit_overwork_request
     @day=Date.parse(params[:day])
     @youbi= (%w{日 月 火 水 木 金 土}[@day.wday])
+  end
+  
+  def accordion
+    @user = User.find(params[:id])
+  end
+  
+  def update_accordion
+    if @user.update_attributes(user_params)
+      flash[:success] = "ユーザー情報を更新しました。"
+      redirect_to @user
+    else
+      render 'edit'
+    end
+  end
+  
+  def working_now
+    @users = User.all
   end
 
 
