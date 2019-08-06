@@ -13,7 +13,7 @@
       </tr>
       <% @basepoints.each do |basepoint| %>
       <tr> <!--rowspan:縦結合、colspan：横結合-->
-        <th><%= link_to "拠点情報編集", edit_basic_info_basepoint_path(basepoint),class: "btn btn-primary" %></th>
+        <th><%= link_to "拠点情報編集", edit_base_basepoint_path(basepoint),class: "btn btn-primary" %></th>
         <th><%= link_to "削除", basepoint, method: :delete, data: { confirm: "削除してよろしいですか？" },class: "btn btn-primary" %></th>
         <th><%= basepoint.name %></th>
         <th><%= basepoint.number %></th>

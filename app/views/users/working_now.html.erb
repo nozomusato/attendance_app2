@@ -2,17 +2,31 @@
 <h1>出勤社員一覧</h1>
 
 <table class = "table-bordered  table-condensed table-striped users">
- 
-    <thead>
+ <thead>
       <tr> <!--rowspan:縦結合、colspan：横結合-->
         <th>社員番号</th>
         <th>氏名</th>
       </tr>
       <% @users.each do |user| %>
-      <tr> <!--rowspan:縦結合、colspan：横結合-->
-        <th></th>
-        <th><%= user.name%></th>
+      <tr>
+        <% if user.attendances.any?{|day|
+        (day.worked_on == Date.today &&
+         day.started_at.present? &&
+         day.finished_at.blank?)} %>
+         <th>
+          <%=user.employeenumber%>
+         </th>
+        <% end %>
+       
+        <% if user.attendances.any?{|day|
+        (day.worked_on == Date.today &&
+         day.started_at.present? &&
+         day.finished_at.blank?)} %>
+         <th>
+          <%= user.name%>
+         </th>
+        <% end %>
       </tr>
-    </thead>
-    <% end %>
+      <% end %>
+ </thead>
 </table>

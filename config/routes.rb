@@ -12,19 +12,22 @@ Rails.application.routes.draw do
   get 'working_now',  to: 'users#working_now'
   
   resources :users do
-     member do
-       get 'edit_overwork_request'
-       get 'accordion'
-       patch 'update_accordion'
-     end
+    collection { post :import }
   resources :attendances, only: :create
+     member do
+       get 'request_overtime'
+       get 'receive_overtime'
+       get 'edit_attendance'
+       get 'month_approval'
+     end
   end
   
   resources :basepoints do
     member do
-      get 'edit_basic_info'
-      patch 'update_basic_info'
+      get 'edit_base'
+      patch 'update_base'
     end
   end
-
+  
+  
 end

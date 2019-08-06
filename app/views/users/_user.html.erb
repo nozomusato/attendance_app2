@@ -2,7 +2,7 @@
   <%= user.name %>
   <% if current_user.admin? && !current_user?(user) %>
   <p><%= link_to "削除", user, method: :delete, data: { confirm: "削除してよろしいですか？" },class: "btn btn-primary" %></p>
-  <p><%= link_to "編集", accordion_user_path(user),class: "btn btn-primary" %></p>
+  <p>
   <section>
  <button type="button" class="btn btn-primary btn-sm" data-toggle="collapse" data-target="#<%=user.id%>">編集</button>
  <div id="<%=user.id%>" class="collapse">
@@ -47,9 +47,6 @@
    </div>
  </div>
 </section>
-  
-
-  
-  
-  <% end %>
+</p>
+<% end %>
 </li>

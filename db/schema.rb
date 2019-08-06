@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190713155524) do
+ActiveRecord::Schema.define(version: 20190805112121) do
 
   create_table "attendances", force: :cascade do |t|
     t.date "worked_on"
@@ -31,6 +31,22 @@ ActiveRecord::Schema.define(version: 20190713155524) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "edit_overwork_requests", force: :cascade do |t|
+    t.date "worked_on"
+    t.datetime "finished_at"
+    t.string "note"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  create_table "overtimes", force: :cascade do |t|
+    t.date "worked_on"
+    t.datetime "finished_at"
+    t.string "note"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "name"
     t.string "email"
@@ -44,6 +60,7 @@ ActiveRecord::Schema.define(version: 20190713155524) do
     t.datetime "basic_time", default: "2019-02-19 23:00:00"
     t.datetime "work_time", default: "2019-02-19 23:00:00"
     t.datetime "work_finish_time", default: "2019-02-20 08:00:00"
+    t.boolean "superior", default: false
     t.index ["email"], name: "index_users_on_email", unique: true
   end
 

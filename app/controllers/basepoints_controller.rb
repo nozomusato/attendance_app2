@@ -28,17 +28,17 @@ class BasepointsController < ApplicationController
     redirect_to basepoints_path
   end
   
-  def edit_basic_info
+  def edit_base
     @basepoint = Basepoint.find(params[:id])
   end
   
   def update
    @basepoint = Basepoint.find(params[:id])
-   if @basepoint.update_attributes(basic_info_params)
+   if @basepoint.update_attributes(basepoint_params)
     flash[:success] = "拠点情報を更新しました。"
     redirect_to basepoints_path  
    else
-    render 'edit_basic_info'
+    render 'edit_base'
    end
   end
   
@@ -48,10 +48,6 @@ class BasepointsController < ApplicationController
 
     def basepoint_params
       params.require(:basepoint).permit(:name, :number, :attendtype)
-    end
-    
-    def basic_info_params
-     params.require(:basepoint).permit(:name, :number, :attendtype)
     end
 
     # beforeアクション
