@@ -12,7 +12,7 @@
     
    <div class="modal-body">
     <table class="table table-bordered">
-    <%= form_with(model: @user, local: true) do |f| %>
+    <%= form_with(model:@user,url: receive_overtime_user_path(@user), local: true) do |f| %>
     <thead>
      <tr>
           <th>日付</th>
@@ -28,8 +28,8 @@
      <tr>
           <th><%= @day %></th>
           <th><%= @youbi%></th>
-          <th><%= f.time_field :finished_at %></th>
-          <th><%= f.check_box :finished_at %></th>
+          <th></th>
+          <th></th>
           <th><%= f.text_field :note %></th>
           <th></th>
      </tr>

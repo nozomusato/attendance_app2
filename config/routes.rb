@@ -12,6 +12,7 @@ Rails.application.routes.draw do
   get 'working_now',  to: 'users#working_now'
   
   resources :users do
+    resources :overtimes
     collection { post :import }
   resources :attendances, only: :create
      member do
@@ -28,6 +29,7 @@ Rails.application.routes.draw do
       patch 'update_base'
     end
   end
+  
   
   
 end

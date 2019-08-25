@@ -1,0 +1,34 @@
+<% provide(:title, '残業申請一覧') %>
+<h1>残業申請一覧</h1>
+
+<table class = "table-bordered  table-condensed table-striped overtimes">
+ 
+    <thead>
+     <tr>
+          <th>日付</th>
+          <th>曜日</th>
+          <th>終了予定時間</th>
+          <th>指定勤務終了時間</th>
+          <th>時間外勤務</th>
+          <th>業務処理内容</th>
+          <th>指示者確認㊞</th>
+          <th>変更</th>
+          <th>勤怠を確認する</th>
+     </tr>
+    
+      <% @overtimes.each do |overtime| %>
+      <tr> <!--rowspan:縦結合、colspan：横結合-->
+        <th></th>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th></th>
+        <th><%= overtime.note %></th>
+        <th></th>
+        <th></th>
+        <th></th>
+      </tr>
+    </thead>
+<% end %>
+</table>
+<%= link_to "拠点情報追加",new_user_overtime_path, class: "btn btn-primary" %>

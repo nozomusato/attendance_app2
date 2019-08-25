@@ -78,9 +78,13 @@ class UsersController < ApplicationController
   end
   
   def request_overtime
+    @user = User.find(params[:id])
     @day=Date.parse(params[:day])
     @youbi=%w(日 月 火 水 木 金 土)[@day.wday]
   end
+  
+  def receive_overtime
+  end 
   
   def import
     # fileはtmpに自動で一時保存される

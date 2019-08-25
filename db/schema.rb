@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20190805112121) do
+ActiveRecord::Schema.define(version: 20190813135031) do
 
   create_table "attendances", force: :cascade do |t|
     t.date "worked_on"
@@ -31,17 +31,8 @@ ActiveRecord::Schema.define(version: 20190805112121) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "edit_overwork_requests", force: :cascade do |t|
-    t.date "worked_on"
-    t.datetime "finished_at"
-    t.string "note"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
-
   create_table "overtimes", force: :cascade do |t|
-    t.date "worked_on"
-    t.datetime "finished_at"
+    t.string "expectation_finished_at"
     t.string "note"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
