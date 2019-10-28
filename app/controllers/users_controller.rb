@@ -1,7 +1,7 @@
 class UsersController < ApplicationController
   before_action :logged_in_user, only: [:edit, :update,:show]
   before_action :correct_user,   only: [:edit, :update,:show]
-  before_action :admin_user,     only: [:destroy, :edit_basic_info, :update_basic_info,:index,:edit, :update]
+  before_action :admin_user,     only: [:destroy, :edit_basic_info, :update_basic_info,:index, :update]
 
   def index
     @users = User.paginate(page: params[:page])
@@ -60,7 +60,10 @@ class UsersController < ApplicationController
   
   
   def edit_basic_info
-  @user = User.find(params[:id])
+    @user = User.find(params[:id])
+    @first_day = Date.parse(params[:date])
+    @last_day = @first_day.end_of_month
+    @dates = @user.attendances.where('worked_on >= ? and worked_on <= ?', @first_day, @last_day).order('worked_on')
   end
 
   def update_basic_info
@@ -77,15 +80,27 @@ class UsersController < ApplicationController
     @users = User.all
   end
   
-  def request_overtime
-    @user = User.find(params[:id])
-    @day=Date.parse(params[:day])
-    @youbi=%w(日 月 火 水 木 金 土)[@day.wday]
+  #残業申請モーダル表示
+  def overwork_request
+    # attendancesのid受け取り、モーダル表示
+    @attendance_id = params[:id]
+    @user = Attendance.find(params[:id]).user
+    @first_day = first_day(params[:first_day]).beginning_of_month
+    @dates = @user.attendances.find(@attendance_id)
+    #superior: trueを全て取得。idが@user.id以外のユーザーを全て取得。
+    @all_user = User.where(superior: true).where.not(id: @user.id)
   end
   
-  def receive_overtime
-  end 
-  
+  #残業申請承認
+  def overwork_permit
+  end
+  #１ヶ月分の勤怠申請、承認
+  def month_request
+  end
+  #勤怠変更申請、承認
+  def edit_request
+  end
+
   def import
     # fileはtmpに自動で一時保存される
     User.import(params[:file])
@@ -101,6 +116,7 @@ private
   def basic_info_params
     params.require(:user).permit(:basic_time, :work_time)
   end
+  
     # beforeアクション
 
     # ログイン済みユーザーか確認

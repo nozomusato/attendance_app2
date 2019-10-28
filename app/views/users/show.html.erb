@@ -26,15 +26,9 @@
     </tr>
   </table>
   <% if current_user.superior?%>
-  <p><%= link_to "【所属長承認申請のお知らせ】", month_approval_user_path, remote: true  %>
-          <!-- モーダル・ダイアログ -->
-　　　　　<div id='month_approval' class="modal fade"  tabindex="-1"  role="dialog" aria-hidden="true"></div></p>
-  <p><%= link_to "【勤怠変更申請のお知らせ】", edit_attendance_user_path, remote: true  %>
-          <!-- モーダル・ダイアログ -->
-　　　　　<div id='edit_attendance' class="modal fade"  tabindex="-1"  role="dialog" aria-hidden="true"></div></p>
-  <p><%= link_to "【残業申請のお知らせ】", receive_overtime_user_path, remote: true  %>
-          <!-- モーダル・ダイアログ -->
-　　　　　<div id='receive_overtime' class="modal fade"  tabindex="-1"  role="dialog" aria-hidden="true"></div></p>
+  <p><%= link_to '【所属長承認申請のお知らせ】',"/month_request", remote: true ,method: :post %></p>
+  <p><%= link_to '【勤怠変更申請のお知らせ】',"/edit_request", remote: true,method: :post %></p>
+  <p><%= link_to '【残業申請のお知らせ】',"/overwork_permit", remote: true,method: :post %></p>
   <%end%>
 
   <%= link_to "勤怠を編集", edit_attendances_path(@user, @first_day), class: "btn btn-primary" %>
@@ -84,11 +78,7 @@
   %>
         <tr>
           <td>
-          <%= link_to "残業申請", request_overtime_user_path(@user, params: { day: day.worked_on  }), remote: true, class: "btn btn-primary"  %>
-          
-          <!-- モーダル・ダイアログ -->
-　　　　　<div id='request_overtime' class="modal fade"  tabindex="-1"  role="dialog" aria-hidden="true"></div>
-          
+            <%= link_to '残業申請', "/overwork_request/#{day.id}", remote: true, class: "btn btn-primary", method: :post %>
           </td>
           
         
@@ -116,7 +106,7 @@
             <% end %>
           </td>
           <td><%= day.note %></td>
-          <td>a</td>
+          <td></td>
           <td></td>
           <td></td>
           <td></td>
@@ -151,3 +141,5 @@
     
   </table>
 </div>
+
+<div id="user-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true"></div>

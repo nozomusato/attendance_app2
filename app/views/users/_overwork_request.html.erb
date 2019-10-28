@@ -1,0 +1,41 @@
+<div class="modal-dialog modal-lg">
+	<div class="modal-content">
+		<div class="modal-body">
+			<button type="button" class="close" data-dismiss="modal"><span>×</span></button>
+			<h4 class="modal-title center">【残業申請】</h4>
+		
+		<%= form_with(model: @user, url: "/users/#{@user.id}/attendances/#{@attendance_id}/update_overwork_request", method: :patch) do |f| %>
+		
+			<table class = "table-bordered table-striped table-condensed">
+        <thead>
+          <tr>
+            <th>日付</th>
+            <th>曜日</th>
+            <th>終了予定時間</th>
+            <th>翌日</th>
+            <th>業務処理内容</th>
+            <th>指示者確認㊞</th>
+          </tr>
+        </thead>
+        <tbody>
+          <%= fields_for "attendances", @dates do |af| %>
+          <tr>
+            <td><%= @dates.worked_on.to_s(:date) %></td>
+            <td><%= %w{日 月 火 水 木 金 土}[@dates.worked_on.wday] %></td>
+            <td><%= af.time_field :overwork_finish, class: "form-control" %></td>
+            <td><%= af.check_box :next_day,  {}, "true", "false" %></td>
+            <td><%= af.text_field :overwork_note, class: "form-control" %></td>
+            <td><%= af.select :overwork_superior, @all_user.map{|t| [t.name, t.id]}, {include_blank: true}, class: "form-control" %></td>
+          </tr>
+          <% end %>
+        </tbody>
+      </table>
+      
+    <%= f.submit "更新", class: "btn btn-primary btn-block modal-button-space" %>
+    <% end %>
+		</div>
+		<div class="modal-footer">
+			<button type="button" class="btn btn-default modal-button-space" data-dismiss="modal">閉じる</button>
+		</div>
+	</div>
+</div>

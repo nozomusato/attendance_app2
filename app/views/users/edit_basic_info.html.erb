@@ -1,19 +1,21 @@
-<% provide(:title, "基本情報編集") %>
+<!--勤怠Aでは使わないページ！！
 
-<h1>基本情報の編集</h1>
+<% provide(:title, "基本情報編集") %>-->
 
-<div class="row">
-  <div class="col-md-6 col-md-offset-3">
-    <%= form_for(@user, url: update_basic_info_path(params: {id: @user.id})) do |f| %>
-      <%= render 'shared/error_messages', object: @user %>
+<!--<h1>基本情報の編集</h1>-->
 
-      <%= f.label :basic_time %>
-      <%= f.time_field :basic_time, class: 'form-control' %>
+<!--<div class="row">-->
+<!--  <div class="col-md-6 col-md-offset-3">-->
+<!--    <%= form_for(@user, url: update_basic_info_path(params: {id: @user.id})) do |f| %>-->
+<!--      <%= render 'shared/error_messages', object: @user %>-->
 
-      <%= f.label :work_time %>
-      <%= f.time_field :work_time, class: 'form-control' %>
+<!--      <%= f.label :basic_time %>-->
+<!--      <%= f.time_field :basic_time, class: 'form-control' %>-->
 
-      <%= f.submit "更新する", class: "btn btn-primary" %>
-    <% end %>
-  </div>
-</div>
+<!--      <%= f.label :work_time %>-->
+<!--      <%= f.time_field :work_time, class: 'form-control' %>-->
+
+<!--      <%= f.submit "更新する", class: "btn btn-primary" %>-->
+<!--    <% end %>-->
+<!--  </div>-->
+<!--</div>-->

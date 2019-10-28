@@ -11,6 +11,7 @@
           <th>退勤時間</th>
           <th>在社時間</th>
           <th>備考</th>
+          <th>指示者確認</th>
         </tr>
       </thead>
       <tbody>
@@ -43,6 +44,14 @@
                 <% end %>
               </td>
               <td><%= af.text_field :note, class: "form-control" %></td>
+              <td>
+                <form>
+                  <select name="承認者" class="form-control">
+                    <option></option>
+                    <option>上長A</option>
+                  </select>
+                </form>
+              </td>
             </tr>
           <% end %>
         <% end %>
