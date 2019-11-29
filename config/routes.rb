@@ -12,23 +12,29 @@ Rails.application.routes.draw do
   get 'users/:id/attendances/:date/edit', to: 'attendances#edit', as: :edit_attendances
   patch 'users/:id/attendances/:date/update', to: 'attendances#update', as: :update_attendances
   
-  
-  
   #残業申請
   post '/overwork_request/:id', to: 'users#overwork_request', as: :overwork_request
   patch '/users/:id/attendances/:attendance_id/update_overwork_request',  to: 'attendances#update_overwork_request', as: :update_overwork_request
   
   #残業申請受け取り、承認
-  post '/overwork_permit', to: 'users#overwork_permit', as: :overwork_permit_modal
-  patch '/users/attendances/overwork_permit', to: 'attendances#overwork_permit', as: :overwork_permit
+  post '/overwork_permit/:id', to: 'users#overwork_permit', as: :overwork_permit_modal
+  patch '/users/:id/attendances/overwork_permit', to: 'attendances#overwork_permit', as: :overwork_permit
   
   #１ヶ月分の勤怠申請、承認
-  post '/month_request', to: 'users#month_request', as: :month_request_modal
-  patch '/users/attendances/month_request', to: 'attendances#month_request', as: :month_request
+  post '/month_request_modal/:id', to: 'users#month_request_modal', as: :month_request_modal
+  patch '/users/:id/attendances/month_request', to: 'attendances#month_request', as: :month_request
+  get  'confirmation/:id/:date', to: 'users#confirmation', as: :confirmation
   
-   #勤怠変更申請、承認
-  post '/edit_request', to: 'users#edit_request', as: :edit_request_modal
-  patch '/users/attendances/edit_request', to: 'attendances#edit_request', as: :edit_request
+   # 勤怠変更申請、承認
+  post '/edit_request/:id/:date', to: 'users#edit_request', as: :edit_request_modal
+  patch '/users/:id/attendances/edit_request', to: 'attendances#edit_request', as: :edit_request
+  
+  #勤怠ログ
+  get '/change_log/:id', to: 'attendances#change_log', as: :change_log
+  
+  #CSV出力
+  post '/csv_dl/:id', to: 'users#csv_dl', as: :csv_dl
+  post '/csv_import', to: 'users#csv_import', as: :csv_import
   
   
   
@@ -47,6 +53,6 @@ Rails.application.routes.draw do
     end
   end
   
-  
+  resources :monthrequests,  only: [:create]
   
 end

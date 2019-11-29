@@ -3,8 +3,8 @@ class CreateUsers < ActiveRecord::Migration[5.1]
     create_table :users do |t|
       t.string :name
       t.string :email
-      t.integer :employeenumber
-      t.integer :card_id
+      t.integer :employee_number
+      t.integer :uid
       t.string :note
 
       t.timestamps

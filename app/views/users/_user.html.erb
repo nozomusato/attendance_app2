@@ -1,7 +1,6 @@
 <li>
   <%= user.name %>
-  <% if current_user.admin? && !current_user?(user) %>
-  <p><%= link_to "削除", user, method: :delete, data: { confirm: "削除してよろしいですか？" },class: "btn btn-primary" %></p>
+  <p><%= link_to "削除", user, method: :delete, data: { confirm: "削除してよろしいですか？" },class: "btn btn-primary" unless user.admin %></p>
   <p>
   <section>
  <button type="button" class="btn btn-primary btn-sm" data-toggle="collapse" data-target="#<%=user.id%>">編集</button>
@@ -19,25 +18,25 @@
          <%= f.email_field :email %>
 
          <%= f.label :所属 %>
-         <%= f.text_field :department %>
+         <%= f.text_field :affiliation %>
 
          <%= f.label :社員番号 %>
-         <%= f.number_field :employeenumber %>
+         <%= f.number_field :employee_number %>
 
          <%= f.label :カード番号 %>
-         <%= f.number_field :card_id %>
+         <%= f.number_field :uid %>
 
          <%= f.label :パスワード %>
          <%= f.password_field :password %>
          
          <%= f.label :基本勤務時間 %>
-         <%= f.time_field :basic_time %>
+         <%= f.time_field :basic_work_time %>
          
          <%= f.label :指定勤務開始時間 %>
-         <%= f.time_field :work_time %>
+         <%= f.time_field :designated_work_start_time %>
          
          <%= f.label :指定勤務終了時間 %>
-         <%= f.time_field :work_finish_time %>
+         <%= f.time_field :designated_work_end_time %>
 
          <%= f.submit "送信", class: "btn btn-primary" %>
          <% end %>
@@ -48,5 +47,4 @@
  </div>
 </section>
 </p>
-<% end %>
 </li>

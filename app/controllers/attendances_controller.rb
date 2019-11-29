@@ -4,10 +4,10 @@ def create
   @user = User.find(params[:user_id]) #createアクションに対応したURL/users/:user_id/attendancesの:user_idから、インスタンス変数@userを定義しています。
   @attendance = @user.attendances.find_by(worked_on: Date.today) #出勤時間を保存する為のレコードをattendancesテーブルから探し、インスタンス変数@attendanceに代入。
   if @attendance.started_at.nil?
-    @attendance.update_attributes(started_at: current_time)
+    @attendance.update_attributes(started_at: current_time, origin_start: current_time)
     flash[:info] = 'おはようございます。'
   elsif @attendance.finished_at.nil?
-    @attendance.update_attributes(finished_at: current_time)
+    @attendance.update_attributes(finished_at: current_time,origin_fin: current_time)
     flash[:info] = 'おつかれさまでした。'
   else
     flash[:danger] = 'トラブルがあり、登録出来ませんでした。'
@@ -20,19 +20,64 @@ def edit
     @first_day = Date.parse(params[:date])
     @last_day = @first_day.end_of_month
     @dates = @user.attendances.where('worked_on >= ? and worked_on <= ?', @first_day, @last_day).order('worked_on')
+    @all_user = User.where(superior: true).where.not(id: params[:id])
 end
 
 def update
     @user = User.find(params[:id])
     if attendances_invalid?
       attendances_params.each do |id, item|
-        attendance = Attendance.find(id)
-        attendance.update_attributes(item)
+        data = Attendance.find(id)
+        # 時間しかいらないが都合上日付を固定する
+        item[:started_at] = "2000-01-01 #{item[:started_at]}" unless item[:started_at].blank?
+        item[:finished_at] = "2000-01-01 #{item[:finished_at]}" unless item[:finished_at].blank?
+        # 出勤・退勤がFormのみ[DBデータなし]に入力された状態から変更する場合
+        if data.started_at.blank? || data.finished_at.blank?
+          # 以下は変更されていたらtrue
+          item[:nextday] = item[:nextday] == "true" ? true : false # 文字列で入ってくるので変換
+          item[:conf_change] = item[:conf_change].blank? ? nil : item[:conf_change].to_i
+        
+          bool_next = data.nextday == item[:nextday]
+          bool_boss = data.conf_change == item[:conf_change]
+          
+          # if !data.origin_start.blank? || !data.origin_fin.blank?
+          #   item["edit_request_permit"] =  "申請中"
+          #   item["permitdate"] =  ""
+          # end
+          # データ変更されていたなら
+          unless bool_next && bool_boss
+            item["edit_request_permit"] =  "申請中"
+            item["permitdate"] =  ""
+          end
+        
+          data.update_attributes(item)
+          next
+        end
+        
+        # 出勤・退勤がDB,Formどちらにも入力された状態から変更する場合
+        if !data.started_at.blank? && !data.finished_at.blank? && !item[:started_at].blank? && !item[:finished_at].blank?
+          # 以下は変更されていたらtrue
+          bool_s = (data.started_at - data.started_at.beginning_of_day) == ((Time.parse(item[:started_at]) - Time.parse(item[:started_at]).beginning_of_day))    
+          bool_e = (data.finished_at - data.finished_at.beginning_of_day) == ((Time.parse(item[:finished_at]) - Time.parse(item[:finished_at]).beginning_of_day))
+        
+          item[:nextday] = item[:nextday] == "true" ? true : false # 文字列で入ってくるので変換
+          item[:conf_change] = item[:conf_change].blank? ? nil : item[:conf_change].to_i
+          bool_next = data.nextday == item[:nextday]
+          bool_boss = data.conf_change == item[:conf_change]
+          
+          # データ変更されていたなら
+          unless bool_s && bool_e && bool_next && bool_boss
+            item["edit_request_permit"] =  "申請中"
+            item["permitdate"] =  ""
+          end
+        
+          data.update_attributes(item)
+        end
       end
-      flash[:success] = '勤怠情報を更新しました。'
-      redirect_to user_path(@user, params:{first_day: params[:date]})
+      flash[:success] = "勤怠情報を更新しました。#{@i}"
+      redirect_to user_url(@user, prams:{first_day: params[:date]})
     else
-      flash[:danger] = "不正な時間入力がありました、再入力してください。"
+      flash[:danger] = '不正な入力がありました、再入力してください。'
       redirect_to edit_attendances_path(@user, params[:date])
     end
 end
@@ -41,8 +86,8 @@ def update_overwork_request #work_request 残業申請モーダル表示、登�
     user = User.find(params[:id])
     # 該当の日付の情報を更新
     attendance = Attendance.find(params[:attendance_id])
-    permit_status = work_request_params
-    blank_check = (!permit_status['overwork_finish'].blank? && !permit_status['overwork_note'].blank?)
+    permit_status = overwork_request_params
+    blank_check = (!permit_status['overwork_finish'].blank? && !permit_status['overwork_superior'].blank?)
     
     if blank_check
       permit_status['work_request_permit'] = '申請中'
@@ -57,24 +102,85 @@ def update_overwork_request #work_request 残業申請モーダル表示、登�
       redirect_to user
     end
 end
+
 #残業申請承認
-def overwork_permit #overtime_permit
-end
+ def overwork_permit #overtime_permit 変更チェック時（更新）のアクション
+      user = User.find(params[:id])
+    overwork_permit_params.each do |id, item|
+      if item[:change]
+        attendance = Attendance.find(id)
+        attendance.update_attributes({:work_request_permit => item[:work_request_permit]})
+        flash[:success] = "申請情報の変更完了しました。"
+      end
+    end
+    redirect_to user
+ end
 
 def month_request
+  user = User.find(params[:id])
+    month_request_params.each do |id, item|
+      if item[:change]
+        # flash[:success] = item[:edit_request_permit]
+        attendance = Monthrequest.find(id)
+        attendance.update_attributes({:month_approval => item[:month_approval]})
+        flash[:success] = "申請情報の変更完了しました。"
+      end
+    end
+    redirect_to user
 end
 
 def edit_request
+    user = User.find(params[:id])
+    # attendances"=>{"1"=>{"edit_request_permit"=>" 申請中", "change"=>"true"}, "24"=>{"edit_request_permit"=>"承認", "change"=>"true"}, "32"=>{"edit_request_permit"=>"否認", "change"=>"true"}}
+
+    nowdate = Date.current
+    edit_request_params.each do |id, item|
+      if item[:change]
+        # flash[:success] = item[:edit_request_permit]
+        attendance = Attendance.find(id)
+        # 承認日も登録
+        attendance.update_attributes({:edit_request_permit => item[:edit_request_permit], :permitdate => nowdate})
+        flash[:success] = "勤怠変更申請を更新しました。"
+      end
+    end
+    redirect_to user
 end
+
+# 勤怠ログ
+  def change_log
+    @user = User.find(params[:id])
+    @log_lists = @user.attendances.where(edit_request_permit: '承認').order('worked_on')
+    # 年の終わり
+    @to_year = Date.current.year
+    @from_year = @user.attendances.order('updated_at').last.created_at.year
+    
+    # セレクト初期表示
+    @sel_today = Date.current
+    # テスト用
+    @from_year = @from_year == 2019 ? 2017 : @from_year
+  end
   
   private
   
     def attendances_params
-      params.permit(attendances: [:started_at, :finished_at, :note])[:attendances]
+      params.permit(attendances: [:started_at, :finished_at, :note, :conf_change, :nextday])[:attendances]
     end
     
     def overwork_request_params #残業申請モーダル画面
-      params.permit(attendances: [:overwork_finish, :overwork_note, :overwork_supervisor,:next_day])[:attendances]
+      params.permit(attendances: [:overwork_finish, :overwork_note, :overwork_superior,:next_day])[:attendances]
+    end
+    
+    def overwork_permit_params
+     params.permit(over_work: [:work_request_permit, :change])[:over_work]
+    end
+    
+    # 勤怠変更strongparameter
+    def edit_request_params
+     params.permit(attendances: [:edit_request_permit, :change])[:attendances]
+    end
+    
+    def month_request_params
+     params.permit(month_requests: [:month_approval, :change])[:month_requests]
     end
   
 end

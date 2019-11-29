@@ -4,9 +4,20 @@
 
 <%= will_paginate @users, :previous_label => '&lt 前へ', :next_label => '次へ &gt' %>
 
-<%= form_tag users_path, multipart: true do %>
-  <%= file_field_tag :file %>
-  <%= submit_tag "CSVをインポート",class: "btn btn-primary" %>
+<%= form_tag csv_import_path, method: :post, multipart: true do |f| %>
+<div class="row">
+  <div class="col-md-6">
+    <div class="input-group">
+        <label class="input-group-btn">
+            <span class="btn btn-primary">
+                ファイルを選択<%= file_field_tag 'csv_file', id: "file_input", style: "display: none;" %>
+            </span>
+        </label>
+        <input type="text" class="form-control" readonly="">
+    </div>
+    <button type="submit" class="btn btn-primary", style= "margin: 10px 0;">CSVをインポート</button>
+  </div>
+</div>
 <% end %>
 
 <ul class="users">
@@ -14,3 +25,12 @@
 </ul>
 
 <%= will_paginate @users, :previous_label => '&lt 前へ', :next_label => '次へ &gt' %>
+
+<script type="text/javascript">
+  $(document).on('change', ':file', function() {
+    var input = $(this),
+    numFiles = input.get(0).files ? input.get(0).files.length : 1,
+    label = input.val().replace(/\\/g, '/').replace(/.*\//, '');
+    input.parent().parent().next(':text').val(label);
+  });
+</script>

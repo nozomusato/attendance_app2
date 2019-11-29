@@ -1,0 +1,220 @@
+<% provide(:title,"勤怠ログ" ) %>
+<div>
+  <h1>勤怠ログ</h1>
+<div class="col-xs-3">
+<button type="button" class="btn btn-default" id="reset">リセット</button>
+
+    <form role="form">
+        <div class="input-group" id="year">
+            <div class="input-group-btn">
+                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                  年
+                    <span class="caret"></span>
+                </button>
+                <ul id="color-dropdown-menu" class="dropdown-menu" role="menu">
+                  <% (@from_year..@to_year).each do |y| %>
+                    <%= content_tag(:li, class: "input", id: y) do %>
+                      <% concat content_tag(:a, y) %>
+                    <% end %>
+                  <% end %>
+                </ul>
+            </div>
+            <%= text_field_tag 'sel_month', @sel_today.strftime("%-Y"), class: "form-control", readonly: "" %>
+        </div>
+    </form>
+    <form role="form">
+        <div class="input-group" id="month">
+            <div class="input-group-btn">
+                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-expanded="false">
+                  月
+                    <span class="caret"></span>
+                </button>
+                <ul id="color-dropdown-menu" class="dropdown-menu" role="menu">
+                  <% (1..12).each do |m| %>
+                    <%= content_tag(:li, class: "input", id: m) do %>
+                      <% concat content_tag(:a, m) %>
+                    <% end %>
+                  <% end %>
+                </ul>
+            </div>
+          <%= text_field_tag 'sel_month', @sel_today.strftime("%-m"), class: "form-control", readonly: "" %>
+        </div>
+    </form>
+</div>
+    <table class = "table-bordered table-striped table-condensed">
+        <thead>
+          <tr>
+            <th>日付</th>
+            <th>変更前出社時間</th>
+            <th>変更前退社時間</th>
+            <th>変更後出社時間</th>
+            <th>変更後退社時間</th>
+            <th>承認者</th>
+            <th>承認日</th>
+          </tr>
+        <thead>
+    <tbody class="attendance_table">
+      <% @log_lists.each do |log_list| %>
+        <tr>
+          <td><%= log_list.worked_on.nil?    ? nil : log_list.worked_on.strftime("%Y-%m-%d") %></td>
+          <td><%= log_list.origin_start.nil? ? nil : log_list.origin_start.strftime("%H:%M") %></td>
+          <td><%= log_list.origin_fin.nil?   ? nil : log_list.origin_fin.strftime("%H:%M")%></td>
+          <td><%= log_list.started_at.nil?   ? nil : log_list.started_at.strftime("%H:%M") %></td>
+          <td><%= log_list.finished_at.nil?  ? nil : log_list.finished_at.strftime("%H:%M") %></td>
+          <td><%= User.find(log_list.conf_change).name unless log_list.conf_change.blank? %></td>
+          <td><%= log_list.permitdate %></td>
+        </tr>
+      <% end %>
+    </tbody>
+    </table>
+</div>
+
+<script>
+  $(function(){
+    var d = new Date();
+    year = d.getFullYear();
+    month = d.getMonth()+1;
+    
+    $("#month li").click(function () {
+      // year = $("#year li").attr('id')
+      month = $(this).attr('id')
+      $("#month input").val(month);
+      
+      $.ajax({
+        url: '/worktime_logs/search',
+        type: 'GET',
+        data: {
+        year: year,
+        month: month
+        }, 
+        dataType: 'json'
+      })
+      .done(function(data){ 
+        console.log("読み込みに成功しました");
+        
+        $('tbody').find('tr').remove(); 
+        $('tbody').find('td').remove();
+      
+        function tern_into_time(t) {
+          if(!!t){
+            let d = new Date(t);
+            // DB登録されてる値がUTC
+            let hour = d.getHours() + 9 >= 24 ?  ("0"+(d.getHours() - 15)).slice(-2) : ("0"+(d.getHours() + 9)).slice(-2);
+            return `${hour}:${("0"+(d.getMinutes())).slice(-2)}`; 
+            } else {
+            return '';
+          }
+        }
+    
+        function isNullOrUndefined(obj){
+          return obj === undefined || obj === null ? '' : obj;
+        }
+        
+        function DateisNullOrUndefined(t){
+          if(!!t){
+            let d = new Date(t);
+            return `${d.getFullYear()}-${('0'+ (d.getMonth()+1)).slice(-2)}-${('0'+ d.getDate()).slice(-2)}`; 
+          } else {
+            return '';
+          }
+        }
+        $(data).each(function(i, val){
+         if(!!val.started_at && !!val.finished_at) {
+          $('tbody').append(
+            $('<tr>')
+            .append('<td>' + val.worked_on + '</td>')
+            .append('<td>' + tern_into_time(val.origin_start) + '</td>')
+            .append('<td>' + tern_into_time(val.origin_fin) + '</td>')
+            .append('<td>' + tern_into_time(val.started_at) + '</td>')
+            .append('<td>' + tern_into_time(val.finished_at) + '</td>')
+            .append('<td>' + isNullOrUndefined(val.name) + '</td>')
+            .append('<td>' + DateisNullOrUndefined(val.permitdate) + '</td>')
+            .append('</tr>')
+            )
+          }
+          else{
+            // 処理を飛ばす ... continue
+            return true;
+          }
+        });
+      }).fail(function(result) {
+      console.log("失敗");
+      });
+    });
+  	$("#year li").click(function () {
+      	year = $(this).attr('id')
+      	$("#year input").val(year);
+      	$.ajax({
+        url: '/worktime_logs/search',
+        type: 'GET',
+        data: {
+            year: year,
+            month: month
+        }, 
+        dataType: 'json'
+    })
+    	.done(function(data){ 
+    		console.log("読み込みに成功しました");
+
+    		
+    		$('tbody').find('tr').remove(); 
+    		$('tbody').find('td').remove();
+    		
+  		  function tern_into_time(t) {
+    		  if(!!t){
+    		    let d = new Date(t);
+    		    // DB登録されてる値がUTC。修正予定
+    		    let hour = d.getHours() + 9 >= 24 ?  ("0"+(d.getHours() - 15)).slice(-2) : ("0"+(d.getHours() + 9)).slice(-2);
+    		    return `${hour}:${("0"+(d.getMinutes())).slice(-2)}`; 
+    		  } else {
+    		    return '';
+    		  }
+  		  }
+  		  
+  		  function isNullOrUndefined(obj){
+  		    return obj === undefined || obj === null ? '' : obj;
+        }
+        
+        function DateisNullOrUndefined(t){
+  		    if(!!t){
+    		    let d = new Date(t);
+            return `${d.getFullYear()}-${('0'+ (d.getMonth()+1)).slice(-2)}-${('0'+ d.getDate()).slice(-2)}`; 
+    		  } else {
+    		    return '';
+    		  }
+        }
+    		$(data).each(function(i, val){
+    		   if(!!val.started_at && !!val.finished_at) {
+            $('tbody').append(
+    		    $('<tr>')
+    		      .append('<td>' + val.worked_on + '</td>')
+    		      .append('<td>' + tern_into_time(val.origin_start) + '</td>')
+    		      .append('<td>' + tern_into_time(val.origin_fin) + '</td>')
+    		      .append('<td>' + tern_into_time(val.started_at) + '</td>')
+    		      .append('<td>' + tern_into_time(val.finished_at) + '</td>')
+    		      .append('<td>' + isNullOrUndefined(val.name) + '</td>')
+    		      .append('<td>' + DateisNullOrUndefined(val.permitdate) + '</td>')
+    		      .append('</tr>')
+    		    )
+            }
+            else{
+              // 処理を飛ばす ... continue
+              return true;
+            }
+    		});
+    		
+			}).fail(function(result) {
+    console.log("失敗");
+    });
+  });
+  
+  $("#reset").click(function () {
+    console.log("Reset");
+    year = d.getFullYear();
+  	month = d.getMonth()+1;
+    $("#year input").val(year);
+    $("#month input").val(month);
+  });
+  
+});
+</script>

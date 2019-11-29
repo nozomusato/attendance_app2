@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20191026162708) do
+ActiveRecord::Schema.define(version: 20191116104101) do
 
   create_table "attendances", force: :cascade do |t|
     t.date "worked_on"
@@ -26,6 +26,11 @@ ActiveRecord::Schema.define(version: 20191026162708) do
     t.string "next_day"
     t.string "work_request_permit"
     t.string "edit_request_permit"
+    t.integer "conf_change"
+    t.datetime "origin_start"
+    t.datetime "origin_fin"
+    t.boolean "nextday", default: false
+    t.date "permitdate"
     t.index ["user_id"], name: "index_attendances_on_user_id"
   end
 
@@ -37,21 +42,31 @@ ActiveRecord::Schema.define(version: 20191026162708) do
     t.datetime "updated_at", null: false
   end
 
+  create_table "monthrequests", force: :cascade do |t|
+    t.date "req_date"
+    t.string "month_approval"
+    t.integer "boss_id"
+    t.integer "user_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_monthrequests_on_user_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "name"
     t.string "email"
-    t.integer "employeenumber"
-    t.integer "card_id"
+    t.integer "employee_number"
+    t.integer "uid"
     t.string "note"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "password_digest"
     t.boolean "admin", default: false
-    t.string "department"
-    t.datetime "basic_time", default: "2019-02-19 23:00:00"
-    t.datetime "work_time", default: "2019-02-19 23:00:00"
-    t.datetime "work_finish_time", default: "2019-02-20 08:00:00"
+    t.string "affiliation"
+    t.datetime "basic_work_time", default: "2019-02-19 23:00:00"
+    t.datetime "designated_work_start_time", default: "2019-02-19 23:00:00"
     t.boolean "superior", default: false
+    t.datetime "designated_work_end_time", default: "2019-11-06 08:00:00"
     t.index ["email"], name: "index_users_on_email", unique: true
   end
 

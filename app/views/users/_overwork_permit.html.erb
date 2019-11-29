@@ -2,11 +2,19 @@
 	<div class="modal-content">
 		<div class="modal-body">
 			<button type="button" class="close" data-dismiss="modal"><span>×</span></button>
-
+		 <!--↓userモデルに紐付く編集用のフォーム作成-->
+		<%= form_for(@user, url: "/users/#{@user.id}/attendances/overwork_permit", method: :patch) do |f| %>
 		
+		<% header_user_id = nil %>
+		
+		<% @work_requests.each do |req| %><!--@work_requestsを繰り返し ブロック変数|req|-->
+		
+      <% if header_user_id != req.user_id %><!--header_user_idとreq.user_idが等しくなければ true　それ以外false-->
+        <% @user = User.find(req.user_id) %><!--Userモデルからuser_idを取得し、@userに代入-->
+        <% header_user_id = req.user_id %><!--header_user_idとreq.user_idが等しいか判断-->
         
         <table class = "table-bordered table-striped table-condensed">
-          <h4 class="center">【からの残業申請】</h4>
+          <h4 class="center">【<%= @user.name %>からの残業申請】</h4>
           <thead>
             <tr>
               <th>日付</th>
@@ -20,20 +28,31 @@
               <th>勤怠確認</th>
             </tr>
           </thead>
-          
-          <tbody>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-          </tbody>
-        </table>
-        
+      <% end %><!--if文-->
+        <tbody>
+          <% unless (req.overwork_superior == req.started_at && req.origin_fin == req.finished_at) %>
+              <%= fields_for "over_work[]", req do |af| %>
+                <td><%= req.worked_on.to_s(:date) %></td>
+                <td><%= %w{日 月 火 水 木 金 土}[req.worked_on.wday] %></td>
+                <td><%= req.overwork_finish.strftime("%H:%M") %></td>
+                <td><%= @user.designated_work_end_time.strftime("%H:%M") %></td>
+                <td><%= overwork_calculation(req) %></td>
+                <td><%= req.overwork_note %></td>
+                <td>
+                    <%= af.select :work_request_permit, 
+                    {"なし" => "なし", "申請中" => "申請中", "承認" => "承認", "否認" => "否認"},
+                    {}, class: "form-control" %>  
+                </td>
+                <td style="width:40px;"><%= af.check_box 'change', {:checked => false}, true, false %></td>
+                <td><%= link_to '確認', "/confirmation/#{req.user_id}/#{req.worked_on}", target: :_blank, class: "btn btn-primary" %></td>
+              <% end %>
+            <% end %>
+          <% end %>
+        </tbody>
+      </table>
+      
+    <%= f.submit "更新", class: "btn btn-primary btn-block modal-button-space" %>
+    <% end %>
 		</div>
 	</div>
 </div>

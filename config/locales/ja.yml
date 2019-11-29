@@ -4,6 +4,10 @@ ja:
       user:
         name: 名前
         email: メールアドレス
-        department: 配属
+        affiliation: 配属
         password: パスワード
         password_confirmation: パスワード確認
+      basepoint:
+        name: 拠点名
+        number: 拠点番号
+        attendtype: 勤怠種類

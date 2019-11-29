@@ -10,30 +10,43 @@
                          class: "btn btn-xs btn-primary" %>
       </td>
       <td>
-        <br>指定勤務開始時間　<%= format_basic_time(@user.work_time) %></br>
-        <br>指定勤務終了時間　<%= format_basic_time(@user.work_finish_time) %></br>
+        <br>指定勤務開始時間　<%= format_basic_work_time(@user.designated_work_start_time) %></br>
+        <br>指定勤務終了時間　<%= format_basic_work_time(@user.designated_work_end_time) %></br>
       </td>
-      <td colspan = "3">基本時間　<%= format_basic_time(@user.basic_time) %></td>
+      <td colspan = "3">基本時間　<%= format_basic_work_time(@user.basic_work_time) %></td>
       <td>初日　<%= @first_day.to_s(:date) %></td>
     </tr>
     <tr>
-      <td>所属：<%= @user.department.present? ? @user.department : "未設定" %></td>
+      <td>所属：<%= @user.affiliation.present? ? @user.affiliation : "未設定" %></td>
       <td>氏名：<%= @user.name %></td>
       <td>コード</td>
-      <td><%= @user.employeenumber%></td>
+      <td><%= @user.employee_number%></td>
       <td>出勤日数：<%= @worked_sum %>日</td>
       <td>締日　<%= @last_day.to_s(:date) %></td>
     </tr>
   </table>
-  <% if current_user.superior?%>
-  <p><%= link_to '【所属長承認申請のお知らせ】',"/month_request", remote: true ,method: :post %></p>
-  <p><%= link_to '【勤怠変更申請のお知らせ】',"/edit_request", remote: true,method: :post %></p>
-  <p><%= link_to '【残業申請のお知らせ】',"/overwork_permit", remote: true,method: :post %></p>
-  <%end%>
+  
+  <% if !@boss_notice.blank? %>
+  <p><%= link_to '【所属長承認申請のお知らせ】',"/month_request_modal/#{@user.id}", remote: true ,method: :post %></p>
+  <% elsif @user.superior %>
+    <p>【残業申請のお知らせ】</p>
+  <% end %>
+  
+  <% if !@time_change_notice.blank? %>
+  <p><%= link_to '【勤怠変更申請のお知らせ】',"/edit_request/#{@user.id}/#{@first_day}", remote: true,method: :post %></p>
+  <% elsif @user.superior %>
+    <p>【勤怠変更申請のお知らせ】</p>
+  <% end %>
+  
+  <% if !@overtime_notice.blank? %>
+  <p><%= link_to '【残業申請のお知らせ】',"/overwork_permit/#{@user.id}", remote: true,method: :post %></p>
+  <% elsif @user.superior %>
+    <p>【残業申請のお知らせ】</p>
+  <% end %>
 
   <%= link_to "勤怠を編集", edit_attendances_path(@user, @first_day), class: "btn btn-primary" %>
-  <%= link_to "勤怠ログ", '#', class: "btn btn-primary" %>
-  <%= link_to "CSV出力",'#', class: "btn btn-primary" %>
+  <%= link_to "勤怠ログ", change_log_path(@user), class: "btn btn-primary" %>
+  <%= link_to "CSV出力", csv_dl_path(format: :csv), class: "btn btn-primary", method: :post %>
 
   <table class = "table-bordered  table-condensed table-striped">
     
@@ -100,24 +113,32 @@
           </td>
           <td>
             <% if day.started_at.present? && day.finished_at.present? %>
-              <%= working_times(day.started_at.floor_to(15.minutes), day.finished_at.floor_to(15.minutes)) %>
+              <%= working_times(day.started_at.floor_to(15.minutes), day.finished_at.floor_to(15.minutes),day.nextday) %>
               <% seconds = (day.finished_at - day.started_at).to_i %>
               <% @total_seconds = @total_seconds.to_i + seconds %>
             <% end %>
           </td>
           <td><%= day.note %></td>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td></td>
-          <td></td>
+          <td><%= day.overwork_finish.to_s(:hour) if day.overwork_finish.present? %></td>
+          <td><%= day.overwork_finish.to_s(:min) if day.overwork_finish.present? %></td>
+          <td><%= overwork_calculation(day) if day.overwork_finish.present? %></td>
+          <td><%= day.overwork_note %></td>
+          <td>
+            <% unless day.work_request_permit.blank? %>
+            <%= "残業申請：#{u_name(day.overwork_superior)}：#{day.work_request_permit}" %>
+          <% end %>
+          <% unless day.edit_request_permit.blank? %>
+            <%= day.work_request_permit.blank? ? "" : tag.br %>
+            <%= "勤怠編集：#{u_name(day.conf_change)}：#{day.edit_request_permit}" %>
+          <% end %>
+          </td>
         </tr>
       <% end %>
     </tbody>
     
     <tfoot>
       <tr>
-        <td colspan = "2"><%= format_basic_time(@user.basic_time).to_f * @worked_sum %></td>
+        <td colspan = "2"><%= format_basic_work_time(@user.basic_work_time).to_f * @worked_sum %></td>
         <td colspan = "6"></td>
         <td><%= working_times_sum(@total_seconds) unless @total_seconds.nil? %></td>
         <td></td>
@@ -127,14 +148,15 @@
         <td></td>
         <td></td>
         <td>
-          所属長承認
-          <form>
-            <select name="承認者">
-              <option value="">選択</option>
-              <option value="1">のじゃまる</option>
-            </select>
-          </form>
-          <%= link_to "申請", '#',class: "btn btn-primary" %>
+          <% @monthrequest.each do |m| %>
+          勤怠申請：<%= u_name(m.boss_id) %>：<%= m.month_approval.nil? ? '未' : m.month_approval %>
+          <% end %>
+          <%= form_with model: Monthrequest.new, id: "my_form" do |f| %>
+            <%= f.select :boss_id, @all_user.map{|t| [t.name, t.id]}, {include_blank: true}, class: "form-control validate[required]" ,id: "boss_select" %>
+            <%= f.hidden_field :req_date, value: @first_day %>
+            <%= f.hidden_field :user_id, value: @user.id %>
+            <%= f.submit "申請", class: "btn btn-primary btn-block" %>
+          <% end %>
         </td>
       </tr>
     </tfoot>
@@ -143,3 +165,10 @@
 </div>
 
 <div id="user-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true"></div>
+<script>
+  $(document).ready(function(){
+      $("#my_form").validationEngine('attach', {
+    promptPosition:"bottomLeft"
+  });
+  });
+</script>
