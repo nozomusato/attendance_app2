@@ -128,7 +128,7 @@ end
 def work_request_invalid?
   attendances = true
   item = work_request_params
-  if item[:overwork_finish].blank? || item[:over_time_content].blank? || item[:conf_request].blank?
+  if item[:overwork_finish].blank? || item[:overwork_note].blank? || item[:overwork_superior].blank?
     attendances = false
   end
   attendances

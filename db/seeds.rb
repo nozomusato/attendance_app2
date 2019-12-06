@@ -15,7 +15,7 @@ User.create!(name:  "上長A",
              superior: true)
              
 User.create!(name:  "上長B",
-             email: "superior2@sample.com",
+             email: "supervisor2@sample.com",
              password:              "password",
              password_confirmation: "password",
              employee_number: 103,

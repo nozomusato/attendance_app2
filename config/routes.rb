@@ -32,6 +32,8 @@ Rails.application.routes.draw do
   #勤怠ログ
   get '/change_log/:id', to: 'attendances#change_log', as: :change_log
   
+  get '/worktime_logs/search', to: 'attendances#worktime_logs'
+  
   #CSV出力
   post '/csv_dl/:id', to: 'users#csv_dl', as: :csv_dl
   post '/csv_import', to: 'users#csv_import', as: :csv_import

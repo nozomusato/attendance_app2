@@ -1,4 +1,7 @@
 class AttendancesController < ApplicationController
+  
+  before_action :logged_in_user,  only: [:create, :edit, :update, :change_log]
+  before_action :correct_user,    only: [:edit, :update, :change_log]
     
 def create
   @user = User.find(params[:user_id]) #createアクションに対応したURL/users/:user_id/attendancesの:user_idから、インスタンス変数@userを定義しています。
@@ -146,7 +149,7 @@ def edit_request
     redirect_to user
 end
 
-# 勤怠ログ
+ # 勤怠ログ
   def change_log
     @user = User.find(params[:id])
     @log_lists = @user.attendances.where(edit_request_permit: '承認').order('worked_on')
@@ -160,7 +163,38 @@ end
     @from_year = @from_year == 2019 ? 2017 : @from_year
   end
   
+  # 勤怠ログ非同期通信
+  def worktime_logs
+    # Parameters: {"year"=>"2019", "month"=>"3"}
+    # data = User.find(params["month"]).attendances.where.not(started_at: nil).where.not(finished_at: nil)
+    
+    id = session[:user_id]
+    from_date = "#{params['year']}-#{params['month'].rjust(2, '0')}-01"
+    to_date = Date.parse(from_date).end_of_month
+    
+    
+    con = ActiveRecord::Base.connection
+    data = con.select_all(
+      "SELECT
+        u.name, a.worked_on, a.started_at, a.finished_at, a.origin_start, a.origin_fin, a.conf_change, a.permitdate
+      FROM ATTENDANCES AS a
+      LEFT JOIN Users AS u
+      ON a.conf_change = u.id
+      WHERE a.worked_on BETWEEN '#{from_date}' AND '#{to_date}'
+      AND a.user_id = #{id}
+      AND a.edit_request_permit = '承認'
+      "
+      )
+    # att = Attendance.where('worked_on >= ? and worked_on <= ?', '2019-04-01', '2019-04-30').order('worked_on')
+    # data = Attendance.eager_load(:user).where('worked_on >= ? and worked_on <= ?', '2019-03-01', '2019-03-30').order('worked_on')
+    render json: data
+  end
+  
   private
+  
+  def except_admin
+    redirect_to users_url if current_user.admin?
+  end
   
     def attendances_params
       params.permit(attendances: [:started_at, :finished_at, :note, :conf_change, :nextday])[:attendances]
@@ -182,5 +216,24 @@ end
     def month_request_params
      params.permit(month_requests: [:month_approval, :change])[:month_requests]
     end
+    
+    def logged_in_user
+    unless logged_in?
+      store_location
+      flash[:danger] = "ログインしてください。"
+      redirect_to login_url
+    end
+    end
+  
+  def correct_user
+    @user = User.find(params[:id])
+    # redirect_to(root_url) unless current_user?(@user) || current_user.admin?
+    redirect_to "/users/#{session[:user_id]}" unless current_user?(@user) || current_user.admin?
+  end
+  
+  def admin_user
+    # redirect_to(root_url) unless current_user.admin?
+    redirect_to "/users/#{session[:user_id]}" unless current_user.admin?
+  end
   
 end
