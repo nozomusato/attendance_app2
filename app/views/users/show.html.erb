@@ -27,19 +27,25 @@
   </table>
   
   <% if !@boss_notice.blank? %>
-  <p><%= link_to '【所属長承認申請のお知らせ】',"/month_request_modal/#{@user.id}", remote: true ,method: :post %></p>
+  <p><%= link_to '【所属長承認申請のお知らせ】',"/month_request_modal/#{@user.id}", remote: true ,method: :post %>
+  <span class="notice-count"><%="#{@boss_notice.count}件"%>
+      </span></p>
   <% elsif @user.superior %>
     <p>【残業申請のお知らせ】</p>
   <% end %>
   
   <% if !@time_change_notice.blank? %>
-  <p><%= link_to '【勤怠変更申請のお知らせ】',"/edit_request/#{@user.id}/#{@first_day}", remote: true,method: :post %></p>
+  <p><%= link_to '【勤怠変更申請のお知らせ】',"/edit_request/#{@user.id}/#{@first_day}", remote: true,method: :post %>
+  <span class="notice-count"><%="#{@time_change_notice.count}件"%>
+      </span></p>
   <% elsif @user.superior %>
     <p>【勤怠変更申請のお知らせ】</p>
   <% end %>
   
   <% if !@overtime_notice.blank? %>
-  <p><%= link_to '【残業申請のお知らせ】',"/overwork_permit/#{@user.id}", remote: true,method: :post %></p>
+  <p><%= link_to '【残業申請のお知らせ】',"/overwork_permit/#{@user.id}", remote: true,method: :post %>
+  <span class="notice-count"><%="#{@overtime_notice.count}件"%>
+      </span></p>
   <% elsif @user.superior %>
     <p>【残業申請のお知らせ】</p>
   <% end %>
@@ -100,14 +106,14 @@
           <td><%= day.started_at.to_s(:hour) if day.started_at.present? %></td>
           <td><%= day.started_at.floor_to(15.minutes).to_s(:min) if day.started_at.present? %></td> <!--.floor_to(15.minutes)(15.minutes)15分刻みで切り捨て-->
           <td>
-            <% if day.worked_on == Date.today && day.started_at.nil? %>
+            <% if day.worked_on == Date.current && day.started_at.nil? %>
               <%= button_to "出社", user_attendances_path(@user), class: "btn btn-xs btn-primary" %>
             <% end %>
           </td>
           <td><%= day.finished_at.to_s(:hour) if day.finished_at.present? %></td>
           <td><%= day.finished_at.floor_to(15.minutes).to_s(:min) if day.finished_at.present? %></td>　<!-- .floor_to(15.minutes)(15.minutes)15分刻みで切り捨て-->
           <td>
-            <% if day.worked_on == Date.today && day.started_at.present? && day.finished_at.nil? %>
+            <% if day.worked_on == Date.current && day.started_at.present? && day.finished_at.nil? %>
               <%= button_to "退社", user_attendances_path(@user), class: "btn btn-xs btn-primary" %>
             <% end %>
           </td>
