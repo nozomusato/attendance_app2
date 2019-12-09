@@ -41,7 +41,7 @@ Rails.application.routes.draw do
   
   
   #出勤中社員
-  get 'working_now',  to: 'users#working_now'
+  get 'working_now',  to: 'users#working_now', as: :working_now
   
   resources :users do
     collection { post :import }

@@ -2,14 +2,16 @@ class UsersController < ApplicationController
   before_action :logged_in_user, only: [:edit, :update, :show, :destroy]
   before_action :correct_user,   only: [:edit, :update,:show, :csv_dl]
   before_action :admin_user,     only: [:destroy, :edit_basic_info, :update_basic_info,:index, :working_now, :csv_import]
-  before_action :except_admin,    only: [:show, :csv_dl, :overwork_request, :overwork_permit, :month_request_modal, :edit_request, :confirmation, :working_now]
+  before_action :except_admin,    only: [:show, :csv_dl, :overwork_request, :overwork_permit, :month_request_modal, :edit_request, :confirmation]
 
   def index
-    @users = User.paginate(page: params[:page])
+    @users = User.paginate(page: params[:page]).where.not(admin: true) #admin: trueのユーザーは取得しない。
+    
   end
   
   def new
     @user = User.new
+    make_new_user
   end
   
   def create
@@ -19,6 +21,7 @@ class UsersController < ApplicationController
       flash[:success] = "ユーザーの新規作成に成功しました。"
       redirect_to @user
     else
+      make_new_user
       render 'new'
     end
   end

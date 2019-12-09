@@ -36,4 +36,14 @@ module SessionsHelper
   def store_location
     session[:forwarding_url] = request.original_url if request.get?
   end
+  
+  def make_new_user
+    uid_name = User.maximum('employee_number')
+    if User.where(uid: "new#{uid_name}").exists?
+      uid_name = "new#{tmp}_#{DateTime.now.sec}"
+    end
+    # 重複防ぐため仮登録では最大値の+1とする
+    @ini_uid = "new#{uid_name}"
+    @ini_employee_number = User.maximum('employee_number') + 1
+  end
 end
