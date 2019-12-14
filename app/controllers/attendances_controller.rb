@@ -28,12 +28,13 @@ end
 
 def update
     @user = User.find(params[:id])
-    if attendances_invalid?
+    if attendances_invalid? #attendancesでバリデーションが通ればfalse、引っかかればtrue
       attendances_params.each do |id, item|
         data = Attendance.find(id)
         # 時間しかいらないが都合上日付を固定する
         item[:started_at] = "2000-01-01 #{item[:started_at]}" unless item[:started_at].blank?
         item[:finished_at] = "2000-01-01 #{item[:finished_at]}" unless item[:finished_at].blank?
+        
         # 出勤・退勤がFormのみ[DBデータなし]に入力された状態から変更する場合
         if data.started_at.blank? || data.finished_at.blank?
           # 以下は変更されていたらtrue
@@ -53,7 +54,9 @@ def update
             item["permitdate"] =  ""
           end
         
+        if item[:conf_change] = item[:conf_change].blank? ? nil : item[:conf_change].to_i
           data.update_attributes(item)
+        end
           next
         end
         
@@ -73,8 +76,9 @@ def update
             item["edit_request_permit"] =  "申請中"
             item["permitdate"] =  ""
           end
-        
+        if item[:conf_change] = item[:conf_change].blank? ? nil : item[:conf_change].to_i
           data.update_attributes(item)
+        end
         end
       end
       flash[:success] = "勤怠情報を更新しました。#{@i}"
@@ -101,7 +105,7 @@ def update_overwork_request #work_request 残業申請モーダル表示、登�
       flash[:danger] = '終了時間と上長を入力してください。'
       redirect_to user
     else
-      flash[:danger] = '不正な入力がありました、再入力してください。'
+      flash[:danger] = '不正な入力がありました、再入力して���ださい。'
       redirect_to user
     end
 end
@@ -197,7 +201,7 @@ end
   end
   
     def attendances_params
-      params.permit(attendances: [:started_at, :finished_at, :note, :conf_change, :nextday])[:attendances]
+      params.permit(attendances: [:started_at, :finished_at, :note, :conf_change, :nextday,:origin_start,:origin_fin])[:attendances]
     end
     
     def overwork_request_params #残業申請モーダル画面

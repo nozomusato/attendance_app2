@@ -47,7 +47,7 @@ module AttendancesHelper
   end
   
   # 勤怠編集画面の値が正しいか
-  def attendances_invalid?
+  def attendances_invalid? #attendancesでバリデーションが通ればfalse、引っかかればtrue
     # conf_changeに何か入っている場合のみチェック
     attendances = true
     attendances_params.each do |id, item|
