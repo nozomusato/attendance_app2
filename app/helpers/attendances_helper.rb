@@ -51,7 +51,15 @@ module AttendancesHelper
     # conf_changeに何か入っている場合のみチェック
     attendances = true
     attendances_params.each do |id, item|
-      if !item[:conf_change].blank?
+      
+      if !item[:started_at].blank? && !item[:finished_at].blank? || !item[:started_at].blank? && item[:finished_at].blank? || item[:started_at].blank? && !item[:finished_at].blank? #
+          if item[:conf_change].blank?
+            attendances = false
+                break
+          end
+      end
+      
+      if !item[:conf_change].blank? #conf_change入ってる
         if (!item[:started_at].blank? && item[:finished_at].blank?) || (item[:started_at].blank? && !item[:finished_at].blank?)
           attendances = false
           break
